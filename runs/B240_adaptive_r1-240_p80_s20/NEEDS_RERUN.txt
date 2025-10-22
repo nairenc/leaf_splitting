@@ -1,0 +1,17 @@
+IMPORTANT: This run needs to be re-executed!
+
+The previous results in B240_adaptive_r1-240_p80_s20_results.csv were run with 
+an old version of leaf_splitting_sim.py that didn't have the adaptive method 
+implemented yet.
+
+As a result, the simulation fell back to the "immediately" method, making the 
+results identical to B240_immediately_r1-240_p80_s20.
+
+To fix:
+1. Make sure leaf_splitting_sim.py has the adaptive method (check: done!)
+2. Delete the old results: rm results/*
+3. Re-submit the job: sbatch submit_slurm.sh
+4. After completion, delete this file
+
+Date identified: October 17, 2025
+
