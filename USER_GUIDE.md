@@ -8,10 +8,11 @@ Complete guide for running simulations, analyzing results, and understanding out
 
 1. [Quick Commands](#quick-commands)
 2. [Parameter Sweeps](#parameter-sweeps)
-3. [SLURM Workflow](#slurm-workflow)
-4. [Analysis](#analysis)
-5. [Understanding Metrics](#understanding-metrics)
-6. [CSV Data Format](#csv-data-format)
+3. [Even Split Simulations](#even-split-simulations)
+4. [SLURM Workflow](#slurm-workflow)
+5. [Analysis](#analysis)
+6. [Understanding Metrics](#understanding-metrics)
+7. [CSV Data Format](#csv-data-format)
 
 ---
 
@@ -105,6 +106,110 @@ python ../../leaf_splitting_sim_slurm.py collect \
 # 7. Analyze
 python ../../analyze/analyze_results.py --input aggregated_results.csv
 ```
+
+---
+
+## Even Split Simulations
+
+For comprehensive even split (p=0.5) studies with multiple B values, use `leaf_splitting_sim_even_split_slurm.py`. This script automatically generates r values from 1 to B/2+1 for each B, so you only need to specify B values, seeds, and splitting strategy.
+
+### Quick Start
+
+```bash
+# Generate config - r values auto-generated from 1 to B/2+1
+python core/leaf_splitting_sim_even_split_slurm.py config \
+    --B-min 256 --B-max 512 --B-step 1 \
+    --method deferred \
+    --seeds 20 \
+    --output even_split_config.json
+```
+
+**Key features:**
+- **Auto-generated r values**: r from 1 to B/2+1 for each B (no need to specify r range)
+- **Task structure**: Each task = (B, seed) combination, runs all r values
+- **Perfect for**: Studying even split behavior across many B values
+
+### Configuration Options
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--B` | `[60, 120, 240, 480]` | List of B values (e.g., `--B 60 120 240`) |
+| `--B-min` | - | Minimum B value (use with `--B-max`) |
+| `--B-max` | - | Maximum B value |
+| `--B-step` | 60 | Step for B values |
+| `--method` | `deferred` | Split method: `deferred`, `immediately`, `adaptive`, `adaptive2`, `phased` |
+| `--r-step` | 1 | Step for r values (r values are auto-generated from 1 to B/2+1) |
+| `--p` | 0.5 | Split ratio (even split) |
+| `--insertion_scale` | `sqrt` | `sqrt`, `linear`, or `fixed` |
+| `--base_insertions` | 100000 | Base insertions for sqrt/linear scale |
+| `--seeds` | 20 | Number of random seeds |
+| `--output` | `even_split_config.json` | Output config filename |
+
+### Example Workflow
+
+```bash
+# 1. Generate configuration
+python core/leaf_splitting_sim_even_split_slurm.py config \
+    --B-min 256 --B-max 512 --B-step 1 \
+    --method deferred \
+    --seeds 20 \
+    --output even_split_config.json
+
+# 2. Create run directory
+mkdir -p runs/B256-512_even_split_s20
+mv even_split_config.json runs/B256-512_even_split_s20/
+
+# 3. Create submit_slurm.sh (update array size from config output)
+# Example: --array=0-5139 for 5,140 tasks
+
+# 4. Submit to SLURM
+cd runs/B256-512_even_split_s20
+sbatch submit_slurm.sh
+
+# 5. Collect results
+python core/leaf_splitting_sim_even_split_slurm.py collect \
+    --results_dir results \
+    --output aggregated_results.csv
+```
+
+### Task Structure
+
+**Key difference from regular SLURM script:**
+
+| Feature | Regular | Even Split |
+|---------|---------|------------|
+| Task structure | Task = (seed, r) or (seed, p) | Task = (B, seed) |
+| Each task runs | All p values OR all r values | r values from 1 to B/2+1 |
+| p values | Multiple | Fixed at 0.5 |
+| B values | Single | Multiple |
+| r values | Specified manually | Auto-generated per B (1 to B/2+1) |
+
+**Example:**
+- 4 B values [60, 120, 240, 480], 20 seeds
+- Total tasks: 4 × 20 = **80 tasks**
+- Each task runs different number of r values:
+  - B=60: 31 r values (1 to 31)
+  - B=120: 61 r values (1 to 61)
+  - B=240: 121 r values (1 to 121)
+  - B=480: 241 r values (1 to 241)
+
+### Output Format
+
+**Per-task results** (`result_*.csv`): One CSV per task with columns:
+- `task_id`, `B`, `r`, `alpha`, `p`, `seed`, `fullness`, `time_avg_fullness`
+
+**Aggregated results** (`aggregated_results.csv`): Statistics across seeds:
+- `B`, `r`, `alpha`, `p`
+- `fullness_mean`, `fullness_std`, `fullness_min`, `fullness_max`
+- `time_avg_fullness_mean`, `time_avg_fullness_std`, etc.
+- `n_seeds`: Number of seeds used
+
+### Tips
+
+1. **Memory**: Each task runs multiple r values, allocate 4-8GB
+2. **Time**: Estimate based on number of r values per task. For B=512 (257 r values), allow 4-6 hours
+3. **r values**: Automatically generated from 1 to B/2+1 - no need to specify manually!
+4. **Large jobs**: For many B values (e.g., B=256-512 step=1 = 257 B values), you'll have many tasks. Check cluster limits.
 
 ---
 
