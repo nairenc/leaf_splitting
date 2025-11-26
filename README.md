@@ -79,40 +79,72 @@ sbatch submit_slurm.sh
 
 ```
 .
-├── leaf_splitting_sim.py          # Core simulation engine
-├── leaf_splitting_sim_slurm.py    # SLURM integration
-├── DOCUMENTATION.md                # Complete technical documentation
-├── QUICK_REFERENCE.md              # Command reference
-├── CSV_COLUMN_REFERENCE.md         # Data format reference
-├── analyze/                        # Analysis scripts
+├── leaf_splitting_sim.py              # Core simulation engine
+├── leaf_splitting_sim_slurm.py        # SLURM parameter sweeps
+├── leaf_splitting_sim_sequence.py     # Variable batch size simulations
+├── leaf_splitting_sim_sequence_slurm.py # SLURM for sequences
+├── USER_GUIDE.md                      # Complete user guide
+├── TECHNICAL_DOCS.md                  # Algorithms & implementation
+├── SEQUENCE_GUIDE.md                  # Sequence simulations guide
+├── analyze/                           # Analysis scripts
 │   ├── analyze_results.py
 │   └── analyze_results_filtered.py
-└── runs/                           # Simulation runs
+└── runs/                              # Simulation runs
     ├── B240_adaptive_r1-240_p80_s20/
     ├── B240_immediately_r1-240_p80_s20/
     └── B240_deferred_r1-240_p40_s20/
 ```
 
-## Key Files
+## 📚 Documentation
 
-- **`leaf_splitting_sim.py`**: Core simulation with all three methods
-- **`leaf_splitting_sim_slurm.py`**: Tools for SLURM cluster execution
-- **`DOCUMENTATION.md`**: Detailed technical documentation
-- **`QUICK_REFERENCE.md`**: Quick command reference
-- **`CSV_COLUMN_REFERENCE.md`**: Output data format
+### Main Guides (Start Here!)
 
-## Documentation
+1. **[USER_GUIDE.md](USER_GUIDE.md)** - Complete user guide
+   - Quick commands & workflow
+   - SLURM execution guide
+   - Analysis tools & plotting
+   - Understanding metrics (time-avg vs final fullness)
+   - CSV data format
 
-- **[Complete Documentation](DOCUMENTATION.md)**: Methods, algorithms, bug fixes, and implementation details
-- **[Quick Reference](QUICK_REFERENCE.md)**: Common commands and workflows
-- **[CSV Reference](CSV_COLUMN_REFERENCE.md)**: Output data format
+2. **[SEQUENCE_GUIDE.md](SEQUENCE_GUIDE.md)** - Variable batch sizes (r_sequence)
+   - How to use r_sequence for time-varying workloads
+   - SLURM execution with convergence tracking
+   - Output format (long-format CSV with snapshots)
+   - Python API & examples
+
+3. **[TECHNICAL_DOCS.md](TECHNICAL_DOCS.md)** - For developers
+   - Algorithms & implementation details
+   - Bug fixes & updates
+   - Performance analysis
+
+### 🛠️ Key Scripts
+
+- **`leaf_splitting_sim.py`**: Core simulation (fixed r sweeps)
+- **`leaf_splitting_sim_slurm.py`**: SLURM parameter sweeps
+- **`leaf_splitting_sim_sequence.py`**: Variable batch sizes with convergence tracking
+- **`leaf_splitting_sim_sequence_slurm.py`**: SLURM for sequences
+- **`plot_convergence.py`**: Visualize convergence over time
+- **`analyze/analyze_results.py`**: Analysis & plotting for parameter sweeps
 
 ## Recent Updates
+
+### November 10, 2025
+- ✅ **Convergence tracking** - Record fullness at multiple time points (100 snapshots)
+- ✅ **Long-format CSV output** - Clean relational format (one row per snapshot)
+- ✅ **Convergence visualization** - `plot_convergence.py` to see when steady state is reached
+- ✅ **Cleaned documentation** - Consolidated from 6+ files to 3 focused guides
 
 ### October 17, 2025
 - ✅ **Added adaptive splitting method** - up to 117% improvement at p < 0.5
 - ✅ **Fixed cascading split bug** in deferred method
 - ✅ **Improved error handling** - explicit method validation
+
+## Getting Started
+
+1. **New users**: Start with [USER_GUIDE.md](USER_GUIDE.md)
+2. **Running sequences**: See [SEQUENCE_GUIDE.md](SEQUENCE_GUIDE.md)
+3. **Analyzing results**: See [QUICK_ANALYSIS.md](QUICK_ANALYSIS.md)
+4. **Understanding algorithms**: Read [TECHNICAL_DOCS.md](TECHNICAL_DOCS.md)
 
 ## Citation
 

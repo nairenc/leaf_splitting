@@ -242,7 +242,8 @@ def plot_fixed_r(records, r_values, B=None, use_ratios=True, save_dir=None, metr
     
     p_min, p_max = min(p_unique), max(p_unique)
     r_str = "_".join([str(r) for r in valid_r_values])
-    filename = f"B{B}_r{r_str}_p{p_min:.2f}-{p_max:.2f}_fullness_vs_p.png"
+    metric_suffix = "timeavg" if metric == 'time_avg' else "final"
+    filename = f"B{B}_r{r_str}_p{p_min:.2f}-{p_max:.2f}_{metric_suffix}_fullness_vs_p.png"
     filepath = os.path.join(save_dir, filename)
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
     print(f"  Saved figure: {filepath}")
@@ -381,7 +382,8 @@ def plot_fixed_p(records, p_values, B=None, save_dir=None, metric='time_avg'):
     
     r_min, r_max = min(r_unique), max(r_unique)
     p_str = "_".join([f"{p:.2f}" for p in valid_p_values])
-    filename = f"B{B}_r{r_min}-{r_max}_p{p_str}_fullness_vs_alpha.png"
+    metric_suffix = "timeavg" if metric == 'time_avg' else "final"
+    filename = f"B{B}_r{r_min}-{r_max}_p{p_str}_{metric_suffix}_fullness_vs_alpha.png"
     filepath = os.path.join(save_dir, filename)
     fig.savefig(filepath, dpi=300, bbox_inches='tight')
     print(f"  Saved figure: {filepath}")
